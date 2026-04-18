@@ -66,6 +66,22 @@ export async function POST(request: NextRequest) {
                       web_app: { url: webAppUrl },
                     },
                   ],
+                  [
+                    {
+                      text: "📷 Inst Львів",
+                      url: "https://www.instagram.com/tigertea.lviv?igsh=MTQ2Y3FuZmQ4ZDdtZA==",
+                    },
+                    {
+                      text: "📷 Inst Київ",
+                      url: "https://www.instagram.com/tigertea.kyiv.smart_plaza?igsh=MWNobHozODBvZmM2dg==",
+                    },
+                  ],
+                  [
+                    {
+                      text: "🎵 TikTok",
+                      url: "https://www.tiktok.com/@tiger_tea?_r=1&_t=ZS-95dswLmExVp",
+                    },
+                  ],
                 ],
               },
             }),
