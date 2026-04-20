@@ -60,10 +60,15 @@ export async function getMenuItems(): Promise<MenuItemDTO[]> {
   }));
 }
 
-export async function incrementLike(id: string): Promise<number> {
+export async function toggleLike(
+  id: string,
+  isLiking: boolean,
+): Promise<number> {
   const updated = await prisma.menuItem.update({
     where: { id },
-    data: { likes: { increment: 1 } },
+    data: {
+      likes: isLiking ? { increment: 1 } : { decrement: 1 },
+    },
     select: { likes: true },
   });
 
