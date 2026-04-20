@@ -16,6 +16,7 @@ declare global {
   interface Window {
     Telegram?: {
       WebApp?: {
+        ready?: () => void;
         initDataUnsafe?: {
           user?: TelegramWebAppUser;
         };
@@ -92,20 +93,38 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
     categories[0] ?? "Лате",
   );
   const [items, setItems] = useState<MenuItemDTO[]>(initialItems);
-  const [tgUserId, setTgUserId] = useState<string>("");
+  const [tgUserId, setTgUserId] = useState<string | null>(null);
+  const [likeError, setLikeError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItemDTO | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if (!tgId) return;
+    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready?.();
+      const id = window.Telegram.WebApp.initDataUnsafe?.user?.id;
+      if (id) {
+        setTgUserId(String(id));
+      } else {
+        // Для тестування в звичайному браузері
+        setTgUserId("browser-test-user");
+      }
+      return;
+    }
 
-    const idAsString = String(tgId);
-    setTgUserId(idAsString);
+    // Фолбек для звичайного браузера без Telegram SDK
+    setTgUserId("browser-test-user");
+  }, [tgUserId]);
+
+  useEffect(() => {
+    if (!tgUserId) return;
 
     startTransition(async () => {
-      const serverItems = await getMenuItems(idAsString);
-      setItems(serverItems);
+      try {
+        const serverItems = await getMenuItems(tgUserId);
+        setItems(serverItems);
+      } catch {
+        setLikeError("Не вдалося завантажити лайки. Оновіть сторінку.");
+      }
     });
   }, []);
 
@@ -122,6 +141,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
   function handleLike(itemId: string, event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
     if (isPending || !tgUserId) return;
+    setLikeError(null);
 
     const currentItem = items.find((item) => item.id === itemId);
     const isLiking = !currentItem?.isLiked;
@@ -206,6 +226,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
               }
             : prev,
         );
+        setLikeError("Не вдалося оновити лайк. Спробуйте ще раз.");
       }
     });
   }
@@ -262,6 +283,11 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
       </div>
 
       <main className="mx-auto max-w-lg px-4 pt-4">
+        {likeError ? (
+          <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+            {likeError}
+          </div>
+        ) : null}
         <ul className="space-y-3">
           {filteredItems.map((item) => (
             <li key={item.id}>
