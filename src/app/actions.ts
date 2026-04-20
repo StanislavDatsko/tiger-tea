@@ -49,6 +49,9 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
   const items = await prisma.menuItem.findMany({
     orderBy: [{ category: "asc" }, { name: "asc" }],
     include: {
+      _count: {
+        select: { likes: true },
+      },
       likes: {
         where: { userId: userId ?? "__anonymous__" },
         select: { id: true },
@@ -66,7 +69,7 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
     image: item.image,
     description: item.description,
     locations: parseLocations(item.locations),
-    likesCount: item.likesCount,
+    likesCount: item._count.likes || 0,
     isLiked: item.likes.length > 0,
   }));
 }
