@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model MenuItem {
+  id          String @id @default(cuid())
+  category    String
+  name        String
+  ingredients String
+  prices      String
+  image       String
+  description String
+  locations   String
+  likes       Int    @default(0)
+}
