@@ -1,15 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { toggleLike, type MenuItemDTO } from "@/app/actions";
+import { getMenuItems, toggleLike, type MenuItemDTO } from "@/app/actions";
 import type { Location } from "@/data/menuData";
 
 type MenuClientProps = {
   initialItems: MenuItemDTO[];
   categories: string[];
 };
+type TelegramWebAppUser = {
+  id?: number;
+};
 
-const LIKED_ITEMS_STORAGE_KEY = "tiger_tea_likes";
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initDataUnsafe?: {
+          user?: TelegramWebAppUser;
+        };
+      };
+    };
+  }
+}
 
 function formatPrices(prices: MenuItemDTO["prices"]): string {
   if (prices.M && prices.L) return `${prices.M} • ${prices.L}`;
@@ -79,26 +92,22 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
     categories[0] ?? "Лате",
   );
   const [items, setItems] = useState<MenuItemDTO[]>(initialItems);
-  const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
+  const [tgUserId, setTgUserId] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<MenuItemDTO | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LIKED_ITEMS_STORAGE_KEY);
-      if (!saved) return;
-      const parsed = JSON.parse(saved) as Record<string, boolean>;
-      if (parsed && typeof parsed === "object") {
-        setLikedItems(parsed);
-      }
-    } catch {
-      setLikedItems({});
-    }
-  }, []);
+    const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    if (!tgId) return;
 
-  useEffect(() => {
-    localStorage.setItem(LIKED_ITEMS_STORAGE_KEY, JSON.stringify(likedItems));
-  }, [likedItems]);
+    const idAsString = String(tgId);
+    setTgUserId(idAsString);
+
+    startTransition(async () => {
+      const serverItems = await getMenuItems(idAsString);
+      setItems(serverItems);
+    });
+  }, []);
 
   const filteredItems = useMemo(
     () =>
@@ -112,24 +121,23 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
 
   function handleLike(itemId: string, event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
-    if (isPending) return;
+    if (isPending || !tgUserId) return;
 
-    const alreadyLiked = Boolean(likedItems[itemId]);
-    const isLiking = !alreadyLiked;
+    const currentItem = items.find((item) => item.id === itemId);
+    const isLiking = !currentItem?.isLiked;
 
-    setLikedItems((prev) => {
-      if (isLiking) {
-        return { ...prev, [itemId]: true };
-      }
-      const next = { ...prev };
-      delete next[itemId];
-      return next;
-    });
-
+    // Optimistic UI update
     setItems((prev) =>
       prev.map((item) =>
         item.id === itemId
-          ? { ...item, likes: Math.max(0, item.likes + (isLiking ? 1 : -1)) }
+          ? {
+              ...item,
+              isLiked: isLiking,
+              likesCount: Math.max(
+                0,
+                item.likesCount + (isLiking ? 1 : -1),
+              ),
+            }
           : item,
       ),
     );
@@ -138,35 +146,26 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
       prev && prev.id === itemId
         ? {
             ...prev,
-            likes: Math.max(0, prev.likes + (isLiking ? 1 : -1)),
+            isLiked: isLiking,
+            likesCount: Math.max(
+              0,
+              prev.likesCount + (isLiking ? 1 : -1),
+            ),
           }
         : prev,
     );
 
     startTransition(async () => {
       try {
-        const nextLikes = await toggleLike(itemId, isLiking);
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === itemId ? { ...item, likes: nextLikes } : item,
-          ),
-        );
-        setSelectedItem((prev) =>
-          prev && prev.id === itemId ? { ...prev, likes: nextLikes } : prev,
-        );
-      } catch {
-        setLikedItems((prev) => {
-          if (alreadyLiked) {
-            return { ...prev, [itemId]: true };
-          }
-          const next = { ...prev };
-          delete next[itemId];
-          return next;
-        });
+        const result = await toggleLike(itemId, tgUserId);
         setItems((prev) =>
           prev.map((item) =>
             item.id === itemId
-              ? { ...item, likes: Math.max(0, item.likes + (alreadyLiked ? 1 : -1)) }
+              ? {
+                  ...item,
+                  likesCount: result.likesCount,
+                  isLiked: result.isLiked,
+                }
               : item,
           ),
         );
@@ -174,7 +173,36 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           prev && prev.id === itemId
             ? {
                 ...prev,
-                likes: Math.max(0, prev.likes + (alreadyLiked ? 1 : -1)),
+                likesCount: result.likesCount,
+                isLiked: result.isLiked,
+              }
+            : prev,
+        );
+      } catch {
+        // Rollback optimistic update on failure
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === itemId
+              ? {
+                  ...item,
+                  isLiked: !isLiking,
+                  likesCount: Math.max(
+                    0,
+                    item.likesCount + (isLiking ? -1 : 1),
+                  ),
+                }
+              : item,
+          ),
+        );
+        setSelectedItem((prev) =>
+          prev && prev.id === itemId
+            ? {
+                ...prev,
+                isLiked: !isLiking,
+                likesCount: Math.max(
+                  0,
+                  prev.likesCount + (isLiking ? -1 : 1),
+                ),
               }
             : prev,
         );
@@ -267,13 +295,13 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                     onClick={(event) => handleLike(item.id, event)}
                     aria-label={`Лайк ${item.name}`}
                     className={`absolute right-1 top-1 flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition ${
-                      likedItems[item.id]
+                      item.isLiked
                         ? "bg-orange-100 text-brand-accent"
                         : "bg-zinc-100 text-zinc-500"
                     }`}
                   >
-                    <HeartIcon active={Boolean(likedItems[item.id])} />
-                    <span>{item.likes}</span>
+                    <HeartIcon active={item.isLiked} />
+                    <span>{item.likesCount}</span>
                   </button>
                 </article>
               </button>

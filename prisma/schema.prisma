@@ -22,5 +22,16 @@ model MenuItem {
   image       String
   description String
   locations   String
-  likes       Int    @default(0)
+  legacyLikes Int    @default(0) @map("likes")
+  likesCount  Int    @default(0)
+  likes       Like[]
+}
+
+model Like {
+  id     String   @id @default(cuid())
+  userId String
+  itemId String
+  item   MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
 }

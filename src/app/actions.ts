@@ -17,7 +17,8 @@ export type MenuItemDTO = {
   image: string;
   description: string;
   locations: Location[];
-  likes: number;
+  likesCount: number;
+  isLiked: boolean;
 };
 
 function parsePrices(value: string): ParsedPrices {
@@ -42,9 +43,18 @@ function parseLocations(value: string): Location[] {
   }
 }
 
-export async function getMenuItems(): Promise<MenuItemDTO[]> {
+export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
+  const userId = tgUserId?.trim();
+
   const items = await prisma.menuItem.findMany({
     orderBy: [{ category: "asc" }, { name: "asc" }],
+    include: {
+      likes: {
+        where: { userId: userId ?? "__anonymous__" },
+        select: { id: true },
+        take: 1,
+      },
+    },
   });
 
   return items.map((item) => ({
@@ -56,21 +66,66 @@ export async function getMenuItems(): Promise<MenuItemDTO[]> {
     image: item.image,
     description: item.description,
     locations: parseLocations(item.locations),
-    likes: item.likes,
+    likesCount: item.likesCount,
+    isLiked: item.likes.length > 0,
   }));
 }
 
 export async function toggleLike(
-  id: string,
-  isLiking: boolean,
-): Promise<number> {
-  const updated = await prisma.menuItem.update({
-    where: { id },
-    data: {
-      likes: isLiking ? { increment: 1 } : { decrement: 1 },
-    },
-    select: { likes: true },
+  itemId: string,
+  tgUserId: string,
+): Promise<{ likesCount: number; isLiked: boolean }> {
+  const userId = tgUserId.trim();
+  if (!userId) {
+    throw new Error("Telegram user id is required.");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const existingLike = await tx.like.findUnique({
+      where: {
+        userId_itemId: {
+          userId,
+          itemId,
+        },
+      },
+      select: { id: true },
+    });
+
+    if (existingLike) {
+      await tx.like.delete({
+        where: { id: existingLike.id },
+      });
+
+      const updated = await tx.menuItem.update({
+        where: { id: itemId },
+        data: { likesCount: { decrement: 1 } },
+        select: { likesCount: true },
+      });
+
+      return {
+        likesCount: updated.likesCount,
+        isLiked: false,
+      };
+    }
+
+    await tx.like.create({
+      data: {
+        userId,
+        itemId,
+      },
+    });
+
+    const updated = await tx.menuItem.update({
+      where: { id: itemId },
+      data: { likesCount: { increment: 1 } },
+      select: { likesCount: true },
+    });
+
+    return {
+      likesCount: updated.likesCount,
+      isLiked: true,
+    };
   });
 
-  return updated.likes;
+  return result;
 }

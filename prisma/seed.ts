@@ -4,6 +4,7 @@ import { menuItems } from "../src/data/menuData";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.like.deleteMany();
   await prisma.menuItem.deleteMany();
 
   await prisma.menuItem.createMany({
@@ -15,7 +16,7 @@ async function main() {
       image: item.image,
       description: item.description,
       locations: JSON.stringify(item.locations),
-      likes: item.initialLikes,
+      likesCount: 0,
     })),
   });
 }
