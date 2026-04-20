@@ -52,11 +52,13 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
       _count: {
         select: { likes: true },
       },
-      likes: {
-        where: { userId: userId ?? "__anonymous__" },
-        select: { id: true },
-        take: 1,
-      },
+      likes: userId
+        ? {
+            where: { userId },
+            select: { id: true },
+            take: 1,
+          }
+        : false,
     },
   });
 
@@ -70,7 +72,7 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
     description: item.description,
     locations: parseLocations(item.locations),
     likesCount: item._count.likes || 0,
-    isLiked: item.likes.length > 0,
+    isLiked: userId ? item.likes.length > 0 : false,
   }));
 }
 

@@ -94,37 +94,38 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
   );
   const [items, setItems] = useState<MenuItemDTO[]>(initialItems);
   const [tgUserId, setTgUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [likeError, setLikeError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItemDTO | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready?.();
-      const id = window.Telegram.WebApp.initDataUnsafe?.user?.id;
-      if (id) {
-        setTgUserId(String(id));
-      } else {
-        // Для тестування в звичайному браузері
-        setTgUserId("browser-test-user");
+    const bootstrapMenu = async () => {
+      let resolvedUserId = "browser-test-user";
+      if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready?.();
+        const id = window.Telegram.WebApp.initDataUnsafe?.user?.id;
+        if (id) {
+          resolvedUserId = String(id);
+        }
       }
-      return;
-    }
 
-    // Фолбек для звичайного браузера без Telegram SDK
-    setTgUserId("browser-test-user");
-  }, [tgUserId]);
+      setTgUserId(resolvedUserId);
+      console.log("Отриманий Telegram ID:", resolvedUserId);
 
-  useEffect(() => {
-    if (!tgUserId) return;
-
-    startTransition(async () => {
       try {
-        const serverItems = await getMenuItems(tgUserId);
-        setItems(serverItems);
+        const fetchedItems = await getMenuItems(resolvedUserId);
+        console.log("Завантажене меню:", fetchedItems);
+        setItems(fetchedItems);
       } catch {
         setLikeError("Не вдалося завантажити лайки. Оновіть сторінку.");
+      } finally {
+        setIsLoading(false);
       }
+    };
+
+    startTransition(() => {
+      void bootstrapMenu();
     });
   }, []);
 
@@ -288,8 +289,14 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
             {likeError}
           </div>
         ) : null}
+        {isLoading ? (
+          <div className="rounded-xl bg-white p-6 text-center text-sm text-zinc-500 shadow-sm ring-1 ring-brand-primary/10">
+            Завантаження меню...
+          </div>
+        ) : null}
         <ul className="space-y-3">
-          {filteredItems.map((item) => (
+          {!isLoading &&
+            filteredItems.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
@@ -335,7 +342,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           ))}
         </ul>
 
-        {filteredItems.length === 0 ? (
+        {!isLoading && filteredItems.length === 0 ? (
           <div className="rounded-xl bg-white p-6 text-center text-sm text-zinc-500 shadow-sm ring-1 ring-brand-primary/10">
             У цій категорії поки немає позицій для обраної локації.
           </div>
