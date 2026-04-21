@@ -36,3 +36,17 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+
+@keyframes pawDrift {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0.15));
+  }
+  50% {
+    opacity: 0.28;
+    transform: translate3d(0, -10px, 0) scale(1.03);
+    filter: drop-shadow(0 0 10px rgba(200, 182, 255, 0.35));
+  }
+}

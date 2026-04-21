@@ -32,17 +32,20 @@ function formatPrices(prices: MenuItemDTO["prices"]): string {
   return "Уточнюйте ціну";
 }
 
-function TigerStripesIcon() {
+function TigerPawPattern({ className }: { className: string }) {
   return (
     <svg
-      viewBox="0 0 240 80"
-      className="absolute inset-0 h-full w-full opacity-20"
+      viewBox="0 0 220 220"
+      className={`absolute h-36 w-36 text-white/15 ${className}`}
       aria-hidden
     >
-      <path d="M0 65C30 35 44 35 76 65" stroke="currentColor" strokeWidth="10" fill="none" />
-      <path d="M55 65C85 26 100 26 132 65" stroke="currentColor" strokeWidth="10" fill="none" />
-      <path d="M110 65C140 30 157 30 188 65" stroke="currentColor" strokeWidth="10" fill="none" />
-      <path d="M165 65C194 38 210 38 240 65" stroke="currentColor" strokeWidth="10" fill="none" />
+      <g fill="currentColor">
+        <ellipse cx="66" cy="50" rx="16" ry="22" transform="rotate(-18 66 50)" />
+        <ellipse cx="103" cy="36" rx="16" ry="22" transform="rotate(-5 103 36)" />
+        <ellipse cx="141" cy="36" rx="16" ry="22" transform="rotate(8 141 36)" />
+        <ellipse cx="175" cy="52" rx="16" ry="22" transform="rotate(18 175 52)" />
+        <path d="M62 118c0-25 22-45 49-45h18c27 0 49 20 49 45 0 34-24 58-58 58s-58-24-58-58Z" />
+      </g>
     </svg>
   );
 }
@@ -55,6 +58,27 @@ function HeartIcon({ active }: { active: boolean }) {
         fill={active ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+      <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function TikTokIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+      <path
+        d="M12.6 3.5h2.6c.3 2.1 1.7 3.6 3.8 4v2.6a8 8 0 0 1-3.7-1V14a6 6 0 1 1-6-6c.3 0 .6 0 .9.1v2.9a3.3 3.3 0 1 0 2.4 3.1V3.5Z"
+        fill="currentColor"
       />
     </svg>
   );
@@ -76,10 +100,10 @@ function LocationButton({
     <button
       type="button"
       onClick={() => onSelect(value)}
-      className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${
+      className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-300 ${
         isActive
-          ? "bg-brand-accent text-white shadow-sm"
-          : "bg-white text-brand-primary ring-1 ring-brand-primary/20"
+          ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-lg shadow-violet-900/30"
+          : "bg-white/10 text-white ring-1 ring-white/35 hover:bg-white/20"
       }`}
     >
       {children}
@@ -233,17 +257,38 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
   }
 
   return (
-    <div className="min-h-full flex-1 bg-gradient-to-b from-white via-orange-50/20 to-white pb-10">
-      <div className="sticky top-0 z-30 border-b border-brand-primary/10 bg-white/95 backdrop-blur">
-        <header className="relative overflow-hidden bg-brand-primary px-4 py-4 text-white">
-          <TigerStripesIcon />
-          <h1 className="relative text-center text-2xl font-bold tracking-wide animate-pulse">
-            Tiger Tea
-          </h1>
+    <div className="relative min-h-full flex-1 overflow-hidden bg-gradient-to-br from-[#090322] via-[#21105f] to-[#5b2dd8] pb-28 text-white">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <TigerPawPattern className="left-[6%] top-[10%] animate-[pawDrift_14s_ease-in-out_infinite]" />
+        <TigerPawPattern className="right-[8%] top-[18%] h-28 w-28 animate-[pawDrift_16s_ease-in-out_infinite_0.8s]" />
+        <TigerPawPattern className="left-[18%] bottom-[18%] h-24 w-24 animate-[pawDrift_12s_ease-in-out_infinite_0.3s]" />
+        <TigerPawPattern className="right-[15%] bottom-[12%] animate-[pawDrift_18s_ease-in-out_infinite_1.1s]" />
+        <TigerPawPattern className="left-[45%] top-[38%] h-20 w-20 animate-[pawDrift_15s_ease-in-out_infinite_0.5s]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.22),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(160,128,255,0.35),transparent_38%),radial-gradient(circle_at_50%_80%,rgba(110,75,255,0.26),transparent_45%)]" />
+      </div>
+
+      <div className="relative z-10 sticky top-0 border-b border-white/15 bg-[#0c072f]/75 backdrop-blur-xl">
+        <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <img
+            src="/logo.jpg"
+            alt="Tiger Tea logo"
+            className="h-14 w-14 rounded-2xl border border-white/25 object-cover shadow-lg shadow-violet-950/45"
+          />
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold tracking-[0.15em] text-white sm:text-3xl">
+              TIGER TEA
+            </h1>
+            <p className="text-xs tracking-[0.22em] text-indigo-100/90">PREMIUM BUBBLE LAB</p>
+          </div>
+          <img
+            src="/logo2.jpg"
+            alt="Tiger Tea badge"
+            className="h-14 w-14 rounded-2xl border border-white/25 object-cover shadow-lg shadow-violet-950/45"
+          />
         </header>
 
-        <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
-          <p className="text-sm font-semibold text-brand-primary">Оберіть локацію:</p>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <p className="text-sm font-semibold text-indigo-100">Оберіть локацію:</p>
           <div className="flex gap-2">
             <LocationButton
               value="lviv"
@@ -262,7 +307,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           </div>
         </div>
 
-        <nav className="flex gap-2 overflow-x-auto px-4 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6">
           {categories.map((category) => {
             const isActive = category === selectedCategory;
             return (
@@ -270,10 +315,10 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                 key={category}
                 type="button"
                 onClick={() => setSelectedCategory(category)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                   isActive
-                    ? "bg-brand-accent text-white shadow-sm"
-                    : "bg-white text-brand-primary ring-1 ring-brand-primary/15"
+                    ? "bg-white text-[#1f1264] shadow-lg shadow-violet-900/35"
+                    : "bg-white/8 text-indigo-50 ring-1 ring-white/30 hover:bg-white/20"
                 }`}
               >
                 {category}
@@ -283,14 +328,26 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
         </nav>
       </div>
 
-      <main className="mx-auto max-w-lg px-4 pt-4">
+      <main className="relative z-10 mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 sm:px-6 lg:grid-cols-[1fr_320px]">
+        <aside className="order-2 rounded-3xl border border-white/20 bg-white/10 p-4 backdrop-blur-xl shadow-2xl shadow-black/20 lg:order-1">
+          <img
+            src="/tiger.png"
+            alt="Tiger Tea mascot with bubble tea"
+            className="mx-auto h-64 w-full max-w-xs object-contain drop-shadow-[0_16px_30px_rgba(8,4,40,0.6)] transition-transform duration-500 hover:scale-105"
+          />
+          <p className="mt-4 text-center text-sm text-indigo-100/95">
+            Signature taste with tiger spirit. Обирайте улюблене bubble tea та ставте лайки.
+          </p>
+        </aside>
+
+        <section className="order-1 space-y-3 lg:order-2">
         {likeError ? (
-          <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+          <div className="rounded-2xl border border-red-300/50 bg-red-500/15 px-3 py-2 text-sm text-red-100">
             {likeError}
           </div>
         ) : null}
         {isLoading ? (
-          <div className="rounded-xl bg-white p-6 text-center text-sm text-zinc-500 shadow-sm ring-1 ring-brand-primary/10">
+          <div className="rounded-2xl border border-white/20 bg-white/12 p-6 text-center text-sm text-indigo-100">
             Завантаження меню...
           </div>
         ) : null}
@@ -301,24 +358,24 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
               <button
                 type="button"
                 onClick={() => setSelectedItem(item)}
-                className="w-full rounded-xl bg-white p-3 text-left shadow-md ring-1 ring-brand-primary/10 transition-all hover:scale-105"
+                className="w-full rounded-2xl border border-white/20 bg-white/12 p-3 text-left shadow-xl shadow-indigo-950/35 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20"
               >
                 <article className="relative flex items-center gap-3">
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="h-24 w-24 rounded-xl bg-zinc-100 object-cover"
+                    className="h-24 w-24 rounded-xl bg-white/20 object-cover"
                     onError={(event) => {
                       event.currentTarget.src = "/placeholder.png";
                     }}
                   />
 
                   <div className="min-w-0 flex-1">
-                    <h2 className="text-base font-bold text-zinc-900">{item.name}</h2>
-                    <p className="mt-1 line-clamp-2 text-sm text-zinc-500">
+                    <h2 className="text-base font-bold text-white">{item.name}</h2>
+                    <p className="mt-1 line-clamp-2 text-sm text-indigo-100/90">
                       {item.ingredients}
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-brand-accent">
+                    <p className="mt-2 text-sm font-semibold text-violet-100">
                       {formatPrices(item.prices)}
                     </p>
                   </div>
@@ -329,8 +386,8 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                     aria-label={`Лайк ${item.name}`}
                     className={`absolute right-1 top-1 flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition ${
                       item.isLiked
-                        ? "bg-orange-100 text-brand-accent"
-                        : "bg-zinc-100 text-zinc-500"
+                        ? "bg-white text-[#3b208a]"
+                        : "bg-white/25 text-indigo-100"
                     }`}
                   >
                     <HeartIcon active={item.isLiked} />
@@ -343,10 +400,11 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
         </ul>
 
         {!isLoading && filteredItems.length === 0 ? (
-          <div className="rounded-xl bg-white p-6 text-center text-sm text-zinc-500 shadow-sm ring-1 ring-brand-primary/10">
+          <div className="rounded-2xl border border-white/20 bg-white/10 p-6 text-center text-sm text-indigo-100">
             У цій категорії поки немає позицій для обраної локації.
           </div>
         ) : null}
+        </section>
       </main>
 
       {selectedItem ? (
@@ -355,15 +413,15 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-4 shadow-2xl animate-[modalIn_220ms_ease-out]"
+            className="w-full max-w-md rounded-3xl border border-white/20 bg-[#f8f7ff] p-4 text-[#1f1652] shadow-2xl animate-[modalIn_220ms_ease-out]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between gap-3">
-              <h3 className="text-xl font-bold text-brand-primary">{selectedItem.name}</h3>
+              <h3 className="text-xl font-bold text-[#32206f]">{selectedItem.name}</h3>
               <button
                 type="button"
                 onClick={() => setSelectedItem(null)}
-                className="rounded-full bg-zinc-100 px-2 py-1 text-sm font-semibold text-zinc-600"
+                className="rounded-full bg-violet-100 px-2 py-1 text-sm font-semibold text-[#4b2da6]"
                 aria-label="Закрити"
               >
                 ✕
@@ -373,19 +431,19 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
             <img
               src={selectedItem.image}
               alt={selectedItem.name}
-              className="mb-4 h-52 w-full rounded-xl bg-zinc-100 object-cover"
+              className="mb-4 h-52 w-full rounded-xl bg-violet-100 object-cover"
               onError={(event) => {
                 event.currentTarget.src = "/placeholder.png";
               }}
             />
 
-            <div className="space-y-3 text-sm text-zinc-700">
+            <div className="space-y-3 text-sm text-[#3a2f66]">
               <p>
-                <span className="font-semibold text-brand-primary">Склад: </span>
+                <span className="font-semibold text-[#32206f]">Склад: </span>
                 {selectedItem.ingredients}
               </p>
               <p>{selectedItem.description}</p>
-              <div className="rounded-xl bg-orange-50 px-3 py-2 text-brand-primary">
+              <div className="rounded-xl bg-violet-100 px-3 py-2 text-[#32206f]">
                 <p className="font-semibold">Ціни:</p>
                 <p>M: {selectedItem.prices.M ?? "—"}</p>
                 <p>L: {selectedItem.prices.L ?? "—"}</p>
@@ -394,6 +452,36 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           </div>
         </div>
       ) : null}
+
+      <nav className="fixed inset-x-0 bottom-4 z-40 mx-auto flex w-[min(94%,560px)] items-center justify-around rounded-2xl border border-white/25 bg-[#0d0832]/80 px-3 py-2 backdrop-blur-xl shadow-[0_14px_36px_rgba(8,3,34,0.55)]">
+        <a
+          href="https://www.instagram.com/tigertea.lviv?igsh=MTQ2Y3FuZmQ4ZDdtZA=="
+          target="_blank"
+          rel="noreferrer"
+          className="group flex items-center gap-2 rounded-xl px-3 py-2 text-indigo-50 transition hover:bg-white/20"
+        >
+          <InstagramIcon />
+          <span className="text-xs font-semibold tracking-wide">Lviv</span>
+        </a>
+        <a
+          href="https://www.instagram.com/tigertea.kyiv.smart_plaza?igsh=MWNobHozODBvZmM2dg=="
+          target="_blank"
+          rel="noreferrer"
+          className="group flex items-center gap-2 rounded-xl px-3 py-2 text-indigo-50 transition hover:bg-white/20"
+        >
+          <InstagramIcon />
+          <span className="text-xs font-semibold tracking-wide">Kyiv</span>
+        </a>
+        <a
+          href="https://www.tiktok.com/@tiger_tea?_r=1&_t=ZS-95dswLmExVp"
+          target="_blank"
+          rel="noreferrer"
+          className="group flex items-center gap-2 rounded-xl px-3 py-2 text-indigo-50 transition hover:bg-white/20"
+        >
+          <TikTokIcon />
+          <span className="text-xs font-semibold tracking-wide">TikTok</span>
+        </a>
+      </nav>
     </div>
   );
 }
