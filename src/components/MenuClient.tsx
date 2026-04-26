@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { getMenuItems, toggleLike, type MenuItemDTO } from "@/app/actions";
 import type { Location } from "@/data/menuData";
 
@@ -8,6 +8,25 @@ type MenuClientProps = {
   initialItems: MenuItemDTO[];
   categories: string[];
 };
+
+type TigerParticleKind = "heart" | "paw" | "tiger";
+
+type TigerParticle = {
+  id: string;
+  burstId: string;
+  kind: TigerParticleKind;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  rotate: number;
+  duration: number;
+  delay: number;
+  size: number;
+  sway: number;
+  emoji?: string;
+};
+
 type TelegramWebAppUser = {
   id?: number;
 };
@@ -146,7 +165,15 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [likeError, setLikeError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItemDTO | null>(null);
+  const [isTigerPressed, setIsTigerPressed] = useState(false);
+  const [isTigerReleasePop, setIsTigerReleasePop] = useState(false);
+  const [tigerParticles, setTigerParticles] = useState<TigerParticle[]>([]);
   const [isPending, startTransition] = useTransition();
+  const tigerTimeoutsRef = useRef<number[]>([]);
+  const tigerTapMetaRef = useRef<{ lastTapAt: number; streak: number }>({
+    lastTapAt: 0,
+    streak: 0,
+  });
   const activeCategory = orderedCategories.includes(selectedCategory)
     ? selectedCategory
     : (orderedCategories[0] ?? "Лате");
@@ -179,6 +206,15 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
     startTransition(() => {
       void bootstrapMenu();
     });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      tigerTimeoutsRef.current.forEach((timeoutId) => {
+        window.clearTimeout(timeoutId);
+      });
+      tigerTimeoutsRef.current = [];
+    };
   }, []);
 
   const filteredItems = useMemo(
@@ -284,6 +320,75 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
     });
   }
 
+  function createTigerParticles(burstId: string, quantity: number): TigerParticle[] {
+    const particles: TigerParticle[] = [];
+
+    for (let index = 0; index < quantity; index += 1) {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 36 + Math.random() * 54;
+      const kindRoll = Math.random();
+      const kind: TigerParticleKind =
+        kindRoll < 0.34 ? "heart" : kindRoll < 0.68 ? "paw" : "tiger";
+
+      particles.push({
+        id: `${burstId}-${index}-${Math.random().toString(36).slice(2, 7)}`,
+        burstId,
+        kind,
+        x: 50,
+        y: 50,
+        dx: Math.cos(angle) * distance,
+        dy: Math.sin(angle) * distance,
+        rotate: -24 + Math.random() * 48,
+        duration: 480 + Math.floor(Math.random() * 280),
+        delay: Math.floor(Math.random() * 120),
+        size: kind === "tiger" ? 16 : 15 + Math.random() * 5,
+        sway: -10 + Math.random() * 20,
+        emoji: kind === "heart" ? (Math.random() > 0.5 ? "❤️" : "♥") : "🐾",
+      });
+    }
+
+    return particles;
+  }
+
+  function handleTigerTap() {
+    const now = Date.now();
+    const diff = now - tigerTapMetaRef.current.lastTapAt;
+    const nextStreak = diff < 420 ? tigerTapMetaRef.current.streak + 1 : 0;
+    tigerTapMetaRef.current = { lastTapAt: now, streak: nextStreak };
+
+    // Keep effect rich on normal taps, but reduce density on rapid spam taps.
+    const baseQuantity = 12 + Math.floor(Math.random() * 9);
+    const densityFactor = Math.max(0.52, 1 - nextStreak * 0.12);
+    const quantity = Math.max(8, Math.round(baseQuantity * densityFactor));
+
+    setIsTigerPressed(true);
+    const pressTimeout = window.setTimeout(() => {
+      setIsTigerPressed(false);
+      setIsTigerReleasePop(true);
+    }, 120);
+    tigerTimeoutsRef.current.push(pressTimeout);
+    const popTimeout = window.setTimeout(() => {
+      setIsTigerReleasePop(false);
+    }, 240);
+    tigerTimeoutsRef.current.push(popTimeout);
+
+    const burstId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const particles = createTigerParticles(burstId, quantity);
+    const maxLifetime = particles.reduce(
+      (max, particle) => Math.max(max, particle.duration + particle.delay),
+      0,
+    );
+
+    setTigerParticles((prev) => [...prev, ...particles]);
+
+    const cleanupTimeout = window.setTimeout(() => {
+      setTigerParticles((prev) =>
+        prev.filter((particle) => particle.burstId !== burstId),
+      );
+    }, maxLifetime + 120);
+    tigerTimeoutsRef.current.push(cleanupTimeout);
+  }
+
   return (
     <div className="relative min-h-full flex-1 overflow-x-hidden overflow-y-visible bg-gradient-to-br from-[#090322] via-[#21105f] to-[#5b2dd8] pb-28 text-white">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -358,11 +463,68 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
 
       <main className="relative z-10 mx-auto grid w-full max-w-6xl gap-6 px-4 pt-6 sm:px-6 lg:grid-cols-[1fr_320px]">
         <aside className="order-2 rounded-3xl border border-white/20 bg-white/10 p-4 backdrop-blur-xl shadow-2xl shadow-black/20 lg:order-1">
-          <img
-            src="/tiger.png"
-            alt="Tiger Tea mascot with bubble tea"
-            className="mx-auto h-64 w-full max-w-xs object-contain drop-shadow-[0_16px_30px_rgba(8,4,40,0.6)] transition-transform duration-500 hover:scale-105"
-          />
+          <button
+            type="button"
+            onClick={handleTigerTap}
+            className={`group relative mx-auto block w-full max-w-xs rounded-3xl border border-white/55 bg-white/90 p-2 shadow-[0_16px_36px_rgba(8,4,40,0.38)] transition-transform duration-100 ease-out ${
+              isTigerPressed
+                ? "scale-95"
+                : isTigerReleasePop
+                  ? "scale-[1.015]"
+                  : "scale-100"
+            }`}
+            aria-label="Tiger burst interaction"
+          >
+            <div className="pointer-events-none absolute inset-0 overflow-visible">
+              {tigerParticles.map((particle) => (
+                <span
+                  key={particle.id}
+                  className="absolute left-0 top-0 will-change-transform"
+                  style={
+                    {
+                      left: `${particle.x}%`,
+                      top: `${particle.y}%`,
+                      width: `${particle.size}px`,
+                      height: `${particle.size}px`,
+                      transform: "translate(-50%, -50%)",
+                      animationName: "tigerBurst",
+                      animationDuration: `${particle.duration}ms`,
+                      animationDelay: `${particle.delay}ms`,
+                      animationTimingFunction: "cubic-bezier(0.18, 0.76, 0.28, 1)",
+                      animationFillMode: "forwards",
+                      "--tx": `${particle.dx}px`,
+                      "--ty": `${particle.dy}px`,
+                      "--sway": `${particle.sway}px`,
+                      "--rot": `${particle.rotate}deg`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {particle.kind === "tiger" ? (
+                    <img
+                      src="/tiger-bg.png"
+                      alt=""
+                      aria-hidden
+                      className="h-full w-full rounded-sm object-cover"
+                    />
+                  ) : (
+                    <span
+                      className={`grid h-full w-full place-items-center text-xs ${
+                        particle.kind === "heart" ? "text-pink-500" : "text-[#5d3ab3]"
+                      } drop-shadow-[0_2px_4px_rgba(86,49,184,0.35)]`}
+                    >
+                      {particle.emoji}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </div>
+
+            <img
+              src="/tiger-bg.png"
+              alt="Tiger Tea mascot with bubble tea"
+              className="relative z-10 mx-auto h-64 w-full object-contain drop-shadow-[0_16px_30px_rgba(8,4,40,0.55)] transition-transform duration-300 group-hover:scale-[1.02]"
+            />
+          </button>
           <p className="mt-4 text-center text-sm text-indigo-100/95">
             Signature taste with tiger spirit. Обирайте улюблене bubble tea та ставте лайки.
           </p>

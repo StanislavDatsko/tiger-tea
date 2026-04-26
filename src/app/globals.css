@@ -79,3 +79,22 @@ body {
     filter: drop-shadow(0 0 10px rgba(200, 182, 255, 0.35));
   }
 }
+
+@keyframes tigerBurst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(1);
+  }
+  45% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%)
+      translate3d(calc(var(--tx) * 0.52 + var(--sway)), calc(var(--ty) * 0.46), 0)
+      rotate(calc(var(--rot) * 0.65)) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%)
+      translate3d(calc(var(--tx) + (var(--sway) * -0.35)), var(--ty), 0)
+      rotate(var(--rot)) scale(0.45);
+  }
+}
