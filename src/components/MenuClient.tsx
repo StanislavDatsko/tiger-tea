@@ -69,7 +69,7 @@ function HeartIcon({ active }: { active: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-5 w-5 shrink-0 overflow-visible"
+      className="h-5 w-5 shrink-0 overflow-visible mr-1"
       aria-hidden
     >
       <path
@@ -410,7 +410,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                     type="button"
                     onClick={(event) => handleLike(item.id, event)}
                     aria-label={`Лайк ${item.name}`}
-                    className={`absolute right-1 top-1 flex items-center gap-1 rounded-full pl-3 pr-2.5 py-1.5 text-xs font-semibold transition ${
+                    className={`absolute right-1 top-1 flex items-center rounded-full pl-3 pr-3 py-1.5 text-xs font-semibold transition ${
                       item.isLiked
                         ? "bg-white text-[#3b208a]"
                         : "bg-white/25 text-indigo-100"
