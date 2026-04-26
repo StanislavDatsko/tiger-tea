@@ -16,6 +16,9 @@ async function main() {
       image: item.image,
       description: item.description,
       locations: JSON.stringify(item.locations),
+      exactAddresses: item.exactAddresses
+        ? JSON.stringify(item.exactAddresses)
+        : null,
       likesCount: 0,
     })),
   });

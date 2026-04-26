@@ -3,10 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import type { Location } from "@/data/menuData";
 
-export type ParsedPrices = {
-  M?: string;
-  L?: string;
-};
+export type PriceBySize = { M?: string; L?: string };
+export type ParsedPrices = Partial<Record<Location, PriceBySize>>;
+export type ParsedExactAddresses = Partial<Record<Location, string[]>>;
 
 export type MenuItemDTO = {
   id: string;
@@ -17,14 +16,48 @@ export type MenuItemDTO = {
   image: string;
   description: string;
   locations: Location[];
+  exactAddresses: ParsedExactAddresses;
   likesCount: number;
   isLiked: boolean;
 };
 
 function parsePrices(value: string): ParsedPrices {
   try {
-    const parsed = JSON.parse(value) as ParsedPrices;
-    return parsed && typeof parsed === "object" ? parsed : {};
+    const parsed = JSON.parse(value) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {};
+    }
+
+    const locations: Location[] = ["lviv", "kyiv"];
+    const normalized: ParsedPrices = {};
+
+    for (const location of locations) {
+      const candidate = (parsed as Record<string, unknown>)[location];
+      if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+        continue;
+      }
+
+      const source = candidate as Record<string, unknown>;
+      normalized[location] = {
+        M: typeof source.M === "string" ? source.M : undefined,
+        L: typeof source.L === "string" ? source.L : undefined,
+      };
+    }
+
+    // Backward compatibility: old shape { M, L }.
+    if (!normalized.lviv && !normalized.kyiv) {
+      const source = parsed as Record<string, unknown>;
+      if (typeof source.M === "string" || typeof source.L === "string") {
+        const fallback = {
+          M: typeof source.M === "string" ? source.M : undefined,
+          L: typeof source.L === "string" ? source.L : undefined,
+        };
+        normalized.lviv = fallback;
+        normalized.kyiv = fallback;
+      }
+    }
+
+    return normalized;
   } catch {
     return {};
   }
@@ -40,6 +73,31 @@ function parseLocations(value: string): Location[] {
     );
   } catch {
     return [];
+  }
+}
+
+function parseExactAddresses(value: string | null): ParsedExactAddresses {
+  if (!value) return {};
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {};
+    }
+
+    const locations: Location[] = ["lviv", "kyiv"];
+    const normalized: ParsedExactAddresses = {};
+
+    for (const location of locations) {
+      const candidate = (parsed as Record<string, unknown>)[location];
+      if (!Array.isArray(candidate)) continue;
+      normalized[location] = candidate.filter(
+        (entry): entry is string => typeof entry === "string",
+      );
+    }
+
+    return normalized;
+  } catch {
+    return {};
   }
 }
 
@@ -71,6 +129,7 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
     image: item.image,
     description: item.description,
     locations: parseLocations(item.locations),
+    exactAddresses: parseExactAddresses(item.exactAddresses),
     likesCount: item._count.likes || 0,
     isLiked: userId ? item.likes.length > 0 : false,
   }));

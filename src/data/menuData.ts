@@ -5,13 +5,11 @@ export type MenuDataItem = {
   category: string;
   name: string;
   ingredients: string;
-  prices: {
-    M?: string;
-    L?: string;
-  };
+  prices: Partial<Record<Location, { M?: string; L?: string }>>;
   image: string;
   description: string;
   locations: Location[];
+  exactAddresses?: Partial<Record<Location, string[]>>;
   initialLikes: number;
 };
 
@@ -21,7 +19,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Лате",
     name: "Тайгер лате",
     ingredients: "Допіо/еспресо, молоко, тапіока, сироп солоної карамелі, топінг солоної карамелі.",
-    prices: { M: "115 ₴", L: "135 ₴" },
+    prices: {
+      lviv: { M: "115 ₴", L: "135 ₴" },
+      kyiv: { M: "115 ₴", L: "135 ₴" },
+    },
     image: "/images/tyger-latte.png",
     description: "Фірмовий кавовий лате з тигровими карамельними смугами.",
     locations: ["lviv", "kyiv"],
@@ -32,7 +33,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Лате",
     name: "Тапіока лате",
     ingredients: "Кава, молоко, тапіока, тростинний цукор.",
-    prices: { M: "110 ₴", L: "130 ₴" },
+    prices: {
+      lviv: { M: "110 ₴", L: "130 ₴" },
+    },
     image: "/images/tapioca-latte.png",
     description: "Класичне мілк-лате з ніжною текстурою та жувальною тапіокою.",
     locations: ["lviv"],
@@ -43,7 +46,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Лате",
     name: "Орео лате",
     ingredients: "Кава, молоко, тапіока, сироп солоної карамелі, топінг солоної карамелі, Oreo, крем.",
-    prices: { M: "125 ₴", L: "145 ₴" },
+    prices: {
+      kyiv: { M: "125 ₴", L: "145 ₴" },
+    },
     image: "/images/oreo-latte.png",
     description: "Десертний латте з Oreo та вершковим кремом.",
     locations: ["kyiv"],
@@ -54,7 +59,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Лате",
     name: "Оранж еспресо",
     ingredients: "Кава, апельсиновий сік, сироп солоної карамелі, кульки на вибір.",
-    prices: { M: "120 ₴", L: "140 ₴" },
+    prices: {
+      lviv: { M: "120 ₴", L: "140 ₴" },
+      kyiv: { M: "120 ₴", L: "140 ₴" },
+    },
     image: "/images/orange-espresso.png",
     description: "Яскравий цитрусовий еспресо з освіжаючим післясмаком.",
     locations: ["lviv", "kyiv"],
@@ -65,7 +73,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Персик-лайм",
     ingredients: "Персикове пюре, лаймовий фреш, зелений чай, фруктові кульки.",
-    prices: { M: "125 ₴", L: "145 ₴" },
+    prices: {
+      kyiv: { M: "125 ₴", L: "145 ₴" },
+    },
     image: "/images/peach-lime.png",
     description: "Солодкий персик і свіжість лайма у преміальному балансі.",
     locations: ["kyiv"],
@@ -76,7 +86,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Кумкват лайм",
     ingredients: "Сироп кумквата, лайм, улун, желейні кульки.",
-    prices: { M: "125 ₴", L: "145 ₴" },
+    prices: {
+      lviv: { M: "125 ₴", L: "145 ₴" },
+      kyiv: { M: "125 ₴", L: "145 ₴" },
+    },
     image: "/images/kumquat-lime.png",
     description: "Цитрусовий мікс з легкою гірчинкою кумквата.",
     locations: ["lviv", "kyiv"],
@@ -87,7 +100,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Клауд Тайгер лате",
     ingredients: "Еспресо, молоко, карамельний тигровий сироп, солона крем-пінка.",
-    prices: { M: "135 ₴", L: "155 ₴" },
+    prices: {
+      kyiv: { M: "135 ₴", L: "155 ₴" },
+    },
     image: "/images/cloud-tiger-latte.png",
     description: "Насичений латте з повітряною сирною пінкою.",
     locations: ["kyiv"],
@@ -98,7 +113,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Манго Маракуя",
     ingredients: "Пюре манго, сироп маракуї, зелений чай, popping boba.",
-    prices: { M: "130 ₴", L: "150 ₴" },
+    prices: {
+      lviv: { M: "130 ₴", L: "150 ₴" },
+    },
     image: "/images/mango-passion.png",
     description: "Тропічний фаворит з насиченим фруктовим ароматом.",
     locations: ["lviv"],
@@ -109,7 +126,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Апельсин лайм",
     ingredients: "Апельсиновий сік, лайм, улун, тапіока.",
-    prices: { M: "120 ₴", L: "140 ₴" },
+    prices: {
+      lviv: { M: "120 ₴", L: "140 ₴" },
+      kyiv: { M: "120 ₴", L: "140 ₴" },
+    },
     image: "/images/orange-lime.png",
     description: "Соковитий апельсин із свіжим лаймовим акцентом.",
     locations: ["lviv", "kyiv"],
@@ -120,7 +140,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Чорниця лайм",
     ingredients: "Чорничний сироп, лайм, зелений чай, желейні кульки.",
-    prices: { M: "125 ₴", L: "145 ₴" },
+    prices: {
+      kyiv: { M: "125 ₴", L: "145 ₴" },
+    },
     image: "/images/blueberry-lime.png",
     description: "Ягідний профіль із кислинкою лайма.",
     locations: ["kyiv"],
@@ -131,7 +153,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Зелений виноград чай",
     ingredients: "Сироп зеленого винограду, жасминовий чай, фруктові кульки.",
-    prices: { M: "120 ₴", L: "140 ₴" },
+    prices: {
+      lviv: { M: "120 ₴", L: "140 ₴" },
+    },
     image: "/images/green-grape-tea.png",
     description: "Легкий виноградний смак у поєднанні з квітковим чаєм.",
     locations: ["lviv"],
@@ -142,7 +166,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Грейпфрут полуниця",
     ingredients: "Грейпфрутовий фреш, полуничний сироп, зелений чай, boba.",
-    prices: { M: "130 ₴", L: "150 ₴" },
+    prices: {
+      lviv: { M: "130 ₴", L: "150 ₴" },
+      kyiv: { M: "130 ₴", L: "150 ₴" },
+    },
     image: "/images/grapefruit-strawberry.png",
     description: "Яскраве кисло-солодке поєднання для літнього настрою.",
     locations: ["lviv", "kyiv"],
@@ -153,7 +180,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Крем орео боба",
     ingredients: "Молоко, Oreo крихта, крем, тапіока, ванільний сироп.",
-    prices: { M: "135 ₴", L: "155 ₴" },
+    prices: {
+      kyiv: { M: "135 ₴", L: "155 ₴" },
+    },
     image: "/images/cream-oreo-boba.png",
     description: "Кремовий десертний боба-напій з печивом Oreo.",
     locations: ["kyiv"],
@@ -164,7 +193,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Преміум",
     name: "Клауд матча коконат",
     ingredients: "Матча, кокосове молоко, крем-пінка, тапіока.",
-    prices: { M: "140 ₴", L: "160 ₴" },
+    prices: {
+      lviv: { M: "140 ₴", L: "160 ₴" },
+      kyiv: { M: "140 ₴", L: "160 ₴" },
+    },
     image: "/images/cloud-matcha-coconut.png",
     description: "Матча з кокосовими нотами та ніжною пінкою.",
     locations: ["lviv", "kyiv"],
@@ -175,7 +207,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Молоко + тапіока",
     name: "Мілк орео боба",
     ingredients: "Oreo, тростинний цукор, молоко, тапіока.",
-    prices: { M: "115 ₴", L: "135 ₴" },
+    prices: {
+      lviv: { M: "115 ₴", L: "135 ₴" },
+    },
     image: "/images/milk-oreo-boba.png",
     description: "Солодкий молочний напій з Oreo та тапіокою.",
     locations: ["lviv"],
@@ -186,7 +220,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Молоко + тапіока",
     name: "Боба мілк",
     ingredients: "Тростинний цукор, тапіока, молоко.",
-    prices: { M: "105 ₴", L: "125 ₴" },
+    prices: {
+      lviv: { M: "105 ₴", L: "125 ₴" },
+      kyiv: { M: "105 ₴", L: "125 ₴" },
+    },
     image: "/images/boba-milk.png",
     description: "Класична молочна база з карамелізованою тапіокою.",
     locations: ["lviv", "kyiv"],
@@ -197,7 +234,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Молоко + тапіока",
     name: "Таро боба",
     ingredients: "Порошок таро, тапіока, молоко.",
-    prices: { M: "115 ₴", L: "135 ₴" },
+    prices: {
+      kyiv: { M: "115 ₴", L: "135 ₴" },
+    },
     image: "/images/taro-boba.png",
     description: "Ніжний таро з фіолетовим відтінком і кремовою текстурою.",
     locations: ["kyiv"],
@@ -208,7 +247,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Молоко + тапіока",
     name: "Бабл гам",
     ingredients: "Сироп ваніль, сироп малина, чай анчан, кульки, молоко.",
-    prices: { M: "120 ₴", L: "140 ₴" },
+    prices: {
+      lviv: { M: "120 ₴", L: "140 ₴" },
+      kyiv: { M: "120 ₴", L: "140 ₴" },
+    },
     image: "/images/bubble-gum.png",
     description: "Яскравий солодкий напій з ванільно-малиновим профілем.",
     locations: ["lviv", "kyiv"],
@@ -219,7 +261,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Фруктовий чай",
     name: "Анчан манго-маракуйя",
     ingredients: "Сироп манго-маракуї, анчан, кульки.",
-    prices: { M: "110 ₴", L: "130 ₴" },
+    prices: {
+      lviv: { M: "110 ₴", L: "130 ₴" },
+    },
     image: "/images/anchan-mango-passion.png",
     description: "Блакитний анчан з тропічним манго-маракуйя смаком.",
     locations: ["lviv"],
@@ -230,7 +274,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Фруктовий чай",
     name: "Лічі",
     ingredients: "Сироп лічі, зелений чай, кульки.",
-    prices: { M: "105 ₴", L: "125 ₴" },
+    prices: {
+      kyiv: { M: "105 ₴", L: "125 ₴" },
+    },
     image: "/images/lychee-tea.png",
     description: "Ароматний лічі в легкому зеленому чаї.",
     locations: ["kyiv"],
@@ -241,7 +287,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Фруктовий чай",
     name: "Маракуйя",
     ingredients: "Сироп маракуї, улун, кульки.",
-    prices: { M: "105 ₴", L: "125 ₴" },
+    prices: {
+      lviv: { M: "105 ₴", L: "125 ₴" },
+      kyiv: { M: "105 ₴", L: "125 ₴" },
+    },
     image: "/images/passionfruit-tea.png",
     description: "Освіжаючий чай з виразною кислинкою маракуї.",
     locations: ["lviv", "kyiv"],
@@ -252,7 +301,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Фруктовий чай",
     name: "Чорниця",
     ingredients: "Сироп чорниці, зелений чай, кульки.",
-    prices: { M: "105 ₴", L: "125 ₴" },
+    prices: {
+      lviv: { M: "105 ₴", L: "125 ₴" },
+    },
     image: "/images/blueberry-tea.png",
     description: "М'який ягідний чай для щоденного смаку.",
     locations: ["lviv"],
@@ -263,7 +314,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Фруктовий чай",
     name: "Полуниця",
     ingredients: "Полуничний сироп, зелений чай, кульки.",
-    prices: { M: "105 ₴", L: "125 ₴" },
+    prices: {
+      kyiv: { M: "105 ₴", L: "125 ₴" },
+    },
     image: "/images/strawberry-tea.png",
     description: "Соковита полуниця в освіжаючому чайному форматі.",
     locations: ["kyiv"],
@@ -274,7 +327,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Фруктовий чай",
     name: "Виноград",
     ingredients: "Виноградний сироп, улун, кульки.",
-    prices: { M: "105 ₴", L: "125 ₴" },
+    prices: {
+      lviv: { M: "105 ₴", L: "125 ₴" },
+      kyiv: { M: "105 ₴", L: "125 ₴" },
+    },
     image: "/images/grape-tea.png",
     description: "Легкий виноградний смак з чайною основою.",
     locations: ["lviv", "kyiv"],
@@ -285,7 +341,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Боба чай",
     name: "Боба класична",
     ingredients: "Чорний чай, тростинний цукор, тапіока.",
-    prices: { M: "100 ₴", L: "120 ₴" },
+    prices: {
+      lviv: { M: "100 ₴", L: "120 ₴" },
+      kyiv: { M: "100 ₴", L: "120 ₴" },
+    },
     image: "/images/classic-boba-tea.png",
     description: "Базовий bubble tea зі збалансованою солодкістю.",
     locations: ["lviv", "kyiv"],
@@ -296,7 +355,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Боба чай",
     name: "Тайгер чай",
     ingredients: "Чорний чай, молоко, карамельний тигровий сироп, тапіока.",
-    prices: { M: "115 ₴", L: "135 ₴" },
+    prices: {
+      kyiv: { M: "115 ₴", L: "135 ₴" },
+    },
     image: "/images/tiger-tea.png",
     description: "Фірмовий чай з карамельними тигровими смугами.",
     locations: ["kyiv"],
@@ -307,7 +368,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Боба чай",
     name: "Анчан ваніль",
     ingredients: "Чай анчан, ванільний сироп, молоко, кульки.",
-    prices: { M: "110 ₴", L: "130 ₴" },
+    prices: {
+      lviv: { M: "110 ₴", L: "130 ₴" },
+    },
     image: "/images/anchan-vanilla.png",
     description: "Ніжна ваніль на базі чаю анчан.",
     locations: ["lviv"],
@@ -318,7 +381,10 @@ export const menuItems: MenuDataItem[] = [
     category: "Боба чай",
     name: "Матча класична",
     ingredients: "Матча, молоко, тростинний сироп, тапіока.",
-    prices: { M: "120 ₴", L: "140 ₴" },
+    prices: {
+      lviv: { M: "120 ₴", L: "140 ₴" },
+      kyiv: { M: "120 ₴", L: "140 ₴" },
+    },
     image: "/images/matcha-classic.png",
     description: "Класична матча з легкою гірчинкою та боба-текстурою.",
     locations: ["lviv", "kyiv"],
@@ -329,7 +395,9 @@ export const menuItems: MenuDataItem[] = [
     category: "Боба чай",
     name: "Полунична матча лате",
     ingredients: "Матча, полуничний сироп, молоко, тапіока.",
-    prices: { M: "125 ₴", L: "145 ₴" },
+    prices: {
+      kyiv: { M: "125 ₴", L: "145 ₴" },
+    },
     image: "/images/strawberry-matcha-latte.png",
     description: "Контрастний мікс полуниці та матча у форматі лате.",
     locations: ["kyiv"],
@@ -340,33 +408,98 @@ export const menuItems: MenuDataItem[] = [
     category: "Боба чай",
     name: "Анчан шейк ваніль",
     ingredients: "Анчан, ванільний сироп, лід, молоко, кульки.",
-    prices: { M: "115 ₴", L: "135 ₴" },
+    prices: {
+      lviv: { M: "115 ₴", L: "135 ₴" },
+      kyiv: { M: "115 ₴", L: "135 ₴" },
+    },
     image: "/images/anchan-shake-vanilla.png",
     description: "Охолоджений ванільний шейк з блакитним анчаном.",
     locations: ["lviv", "kyiv"],
     initialLikes: 83,
   },
   {
-    id: "mochi-mango",
+    id: "macaron-l",
     category: "Десерти",
-    name: "Моті з манго",
-    ingredients: "Рисове тісто, мангова начинка, цукрова пудра.",
-    prices: { M: "85 ₴" },
-    image: "/images/mochi-mango.png",
-    description: "Ніжне рисове тісто з манговою начинкою.",
-    locations: ["lviv", "kyiv"],
-    initialLikes: 158,
+    name: "Макарун Л",
+    ingredients: "Класичний макарун, мигдалева меренга, кремова начинка.",
+    prices: {
+      lviv: { M: "95 ₴" },
+    },
+    image: "/placeholder.png",
+    description: "Ніжний французький десерт з насиченим кремовим смаком.",
+    locations: ["lviv"],
+    exactAddresses: {
+      lviv: ["Цехова 3", "Бандери 24", "Краківська 4", "ТЦ Вікторія Гарденс"],
+    },
+    initialLikes: 101,
   },
   {
-    id: "jelly-balls",
+    id: "macarons-lux",
     category: "Десерти",
-    name: "Желейні кульки",
-    ingredients: "Мікс фруктового желе, ягідний соус.",
-    prices: { M: "70 ₴" },
-    image: "/images/jelly-balls.png",
-    description: "Легкий десерт з асорті фруктових желе.",
-    locations: ["kyiv"],
-    initialLikes: 64,
+    name: "Макаруни Люкс",
+    ingredients: "Асорті преміум-макарунів із шовковистим кремом.",
+    prices: {
+      lviv: { M: "115 ₴" },
+    },
+    image: "/placeholder.png",
+    description: "Преміальна колекція макарунів з вишуканими смаками.",
+    locations: ["lviv"],
+    exactAddresses: {
+      lviv: ["Цехова 3", "Краківська 4", "ТЦ Вікторія Гарденс", "Січові 16"],
+    },
+    initialLikes: 89,
+  },
+  {
+    id: "onigiri-dessert",
+    category: "Десерти",
+    name: "Онігірі",
+    ingredients: "Рисова основа, кремова/солодка начинка, норі.",
+    prices: {
+      lviv: { M: "99 ₴" },
+      kyiv: { M: "109 ₴" },
+    },
+    image: "/placeholder.png",
+    description: "Оригінальний десертний онігірі у фірмовому стилі Tiger Tea.",
+    locations: ["lviv", "kyiv"],
+    exactAddresses: {
+      lviv: ["Цехова 3", "Краківська 4", "ТЦ Вікторія Гарденс"],
+      kyiv: ["ТЦ Smart Plaza"],
+    },
+    initialLikes: 97,
+  },
+  {
+    id: "marmalade",
+    category: "Десерти",
+    name: "Мармелад",
+    ingredients: "Фруктове пюре, натуральний пектин, ягідний цукор.",
+    prices: {
+      lviv: { M: "79 ₴" },
+    },
+    image: "/placeholder.png",
+    description: "Яскравий фруктовий мармелад з м'якою текстурою.",
+    locations: ["lviv"],
+    exactAddresses: {
+      lviv: ["Цехова 3", "Краківська 4", "Бандери 24"],
+    },
+    initialLikes: 74,
+  },
+  {
+    id: "mochi-m",
+    category: "Десерти",
+    name: "Мочі М",
+    ingredients: "Рисове тісто, вершкова начинка, фруктовий акцент.",
+    prices: {
+      lviv: { M: "89 ₴" },
+      kyiv: { M: "95 ₴" },
+    },
+    image: "/placeholder.png",
+    description: "Ніжні мочі у форматі M, ідеальні до будь-якого bubble tea.",
+    locations: ["lviv", "kyiv"],
+    exactAddresses: {
+      lviv: ["Цехова 3", "Бандери 24", "Краківська 4", "ТЦ Вікторія Гарденс", "Січові 16"],
+      kyiv: ["ТЦ Smart Plaza"],
+    },
+    initialLikes: 132,
   },
 ];
 

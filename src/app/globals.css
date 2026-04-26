@@ -26,6 +26,35 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+html,
+body {
+  overflow-y: scroll;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Keep scroll affordance visible on touch devices */
+@media (max-width: 1024px) {
+  .mobile-scrollbar {
+    scrollbar-width: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  .mobile-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 9999px;
+  }
+
+  .mobile-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #6b6cff, #8c64ff);
+    border-radius: 9999px;
+  }
+}
+
 @keyframes modalIn {
   from {
     opacity: 0;

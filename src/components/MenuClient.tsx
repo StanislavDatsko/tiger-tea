@@ -25,11 +25,26 @@ declare global {
   }
 }
 
-function formatPrices(prices: MenuItemDTO["prices"]): string {
-  if (prices.M && prices.L) return `${prices.M} • ${prices.L}`;
-  if (prices.M) return prices.M;
-  if (prices.L) return prices.L;
+function formatPrices(
+  prices: MenuItemDTO["prices"],
+  selectedLocation: Location,
+): string {
+  const selectedPrices = prices[selectedLocation];
+  if (!selectedPrices) return "Уточнюйте ціну";
+  if (selectedPrices.M && selectedPrices.L) {
+    return `${selectedPrices.M} • ${selectedPrices.L}`;
+  }
+  if (selectedPrices.M) return selectedPrices.M;
+  if (selectedPrices.L) return selectedPrices.L;
   return "Уточнюйте ціну";
+}
+
+function sortCategoriesWithDessertsLast(categories: string[]): string[] {
+  return [...categories].sort((a, b) => {
+    if (a === "Десерти") return 1;
+    if (b === "Десерти") return -1;
+    return a.localeCompare(b, "uk");
+  });
 }
 
 function TigerPawPattern({ className }: { className: string }) {
@@ -112,9 +127,13 @@ function LocationButton({
 }
 
 export function MenuClient({ initialItems, categories }: MenuClientProps) {
+  const orderedCategories = useMemo(
+    () => sortCategoriesWithDessertsLast(categories),
+    [categories],
+  );
   const [selectedLocation, setSelectedLocation] = useState<Location>("lviv");
   const [selectedCategory, setSelectedCategory] = useState<string>(
-    categories[0] ?? "Лате",
+    orderedCategories[0] ?? "Лате",
   );
   const [items, setItems] = useState<MenuItemDTO[]>(initialItems);
   const [tgUserId, setTgUserId] = useState<string | null>(null);
@@ -122,6 +141,9 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
   const [likeError, setLikeError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItemDTO | null>(null);
   const [isPending, startTransition] = useTransition();
+  const activeCategory = orderedCategories.includes(selectedCategory)
+    ? selectedCategory
+    : (orderedCategories[0] ?? "Лате");
 
   useEffect(() => {
     const bootstrapMenu = async () => {
@@ -157,10 +179,10 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
     () =>
       items.filter(
         (item) =>
-          item.category === selectedCategory &&
+          item.category === activeCategory &&
           item.locations.includes(selectedLocation),
       ),
-    [items, selectedCategory, selectedLocation],
+    [activeCategory, items, selectedLocation],
   );
 
   function handleLike(itemId: string, event: React.MouseEvent<HTMLButtonElement>) {
@@ -307,9 +329,9 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           </div>
         </div>
 
-        <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6">
-          {categories.map((category) => {
-            const isActive = category === selectedCategory;
+        <nav className="mobile-scrollbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-4 sm:px-6">
+          {orderedCategories.map((category) => {
+            const isActive = category === activeCategory;
             return (
               <button
                 key={category}
@@ -376,7 +398,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                       {item.ingredients}
                     </p>
                     <p className="mt-2 text-sm font-semibold text-violet-100">
-                      {formatPrices(item.prices)}
+                      {formatPrices(item.prices, selectedLocation)}
                     </p>
                   </div>
 
@@ -384,7 +406,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                     type="button"
                     onClick={(event) => handleLike(item.id, event)}
                     aria-label={`Лайк ${item.name}`}
-                    className={`absolute right-1 top-1 flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition ${
+                    className={`absolute right-1 top-1 flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition ${
                       item.isLiked
                         ? "bg-white text-[#3b208a]"
                         : "bg-white/25 text-indigo-100"
@@ -431,7 +453,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
             <img
               src={selectedItem.image}
               alt={selectedItem.name}
-              className="mb-4 h-52 w-full rounded-xl bg-violet-100 object-cover"
+              className="mb-4 h-52 w-full rounded-xl bg-[#f2efff] object-contain"
               onError={(event) => {
                 event.currentTarget.src = "/placeholder.png";
               }}
@@ -445,9 +467,25 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
               <p>{selectedItem.description}</p>
               <div className="rounded-xl bg-violet-100 px-3 py-2 text-[#32206f]">
                 <p className="font-semibold">Ціни:</p>
-                <p>M: {selectedItem.prices.M ?? "—"}</p>
-                <p>L: {selectedItem.prices.L ?? "—"}</p>
+                <p>M: {selectedItem.prices[selectedLocation]?.M ?? "—"}</p>
+                <p>L: {selectedItem.prices[selectedLocation]?.L ?? "—"}</p>
               </div>
+              {selectedItem.exactAddresses[selectedLocation]?.length ? (
+                <div className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-violet-50 px-3 py-2 text-[#2b1e61]">
+                  <p className="font-semibold text-[#32206f]">
+                    Доступно за адресами:
+                  </p>
+                  <ul className="mt-1 space-y-1">
+                    {selectedItem.exactAddresses[selectedLocation]?.map(
+                      (address) => (
+                        <li key={address} className="text-sm">
+                          {address}
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

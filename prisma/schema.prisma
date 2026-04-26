@@ -22,6 +22,7 @@ model MenuItem {
   image       String
   description String
   locations   String
+  exactAddresses String?
   legacyLikes Int    @default(0) @map("likes")
   likesCount  Int    @default(0)
   likes       Like[]
