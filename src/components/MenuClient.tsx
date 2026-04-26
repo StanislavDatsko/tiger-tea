@@ -67,7 +67,11 @@ function TigerPawPattern({ className }: { className: string }) {
 
 function HeartIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 shrink-0 overflow-visible"
+      aria-hidden
+    >
       <path
         d="M12 21s-7.5-4.5-9.5-9.1C.9 8.2 2.3 5 5.6 5c2.1 0 3.2 1.2 4.1 2.4C10.6 6.2 11.8 5 13.9 5c3.2 0 4.8 3.1 3.2 6.8C19.2 16.5 12 21 12 21z"
         fill={active ? "currentColor" : "none"}
@@ -279,7 +283,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
   }
 
   return (
-    <div className="relative min-h-full flex-1 overflow-hidden bg-gradient-to-br from-[#090322] via-[#21105f] to-[#5b2dd8] pb-28 text-white">
+    <div className="relative min-h-full flex-1 overflow-x-hidden overflow-y-visible bg-gradient-to-br from-[#090322] via-[#21105f] to-[#5b2dd8] pb-28 text-white">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <TigerPawPattern className="left-[6%] top-[10%] animate-[pawDrift_14s_ease-in-out_infinite]" />
         <TigerPawPattern className="right-[8%] top-[18%] h-28 w-28 animate-[pawDrift_16s_ease-in-out_infinite_0.8s]" />
@@ -329,7 +333,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
           </div>
         </div>
 
-        <nav className="mobile-scrollbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-4 sm:px-6">
+        <nav className="mobile-scrollbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-4 pt-2 sm:px-6">
           {orderedCategories.map((category) => {
             const isActive = category === activeCategory;
             return (
@@ -337,7 +341,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                 key={category}
                 type="button"
                 onClick={() => setSelectedCategory(category)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                className={`inline-flex h-10 shrink-0 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold leading-none transition-all duration-300 ${
                   isActive
                     ? "bg-white text-[#1f1264] shadow-lg shadow-violet-900/35"
                     : "bg-white/8 text-indigo-50 ring-1 ring-white/30 hover:bg-white/20"
@@ -406,7 +410,7 @@ export function MenuClient({ initialItems, categories }: MenuClientProps) {
                     type="button"
                     onClick={(event) => handleLike(item.id, event)}
                     aria-label={`Лайк ${item.name}`}
-                    className={`absolute right-1 top-1 flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+                    className={`absolute right-1 top-1 flex items-center gap-1 rounded-full pl-3 pr-2.5 py-1.5 text-xs font-semibold transition ${
                       item.isLiked
                         ? "bg-white text-[#3b208a]"
                         : "bg-white/25 text-indigo-100"
