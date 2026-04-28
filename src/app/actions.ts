@@ -107,9 +107,6 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
   const items = await prisma.menuItem.findMany({
     orderBy: [{ category: "asc" }, { name: "asc" }],
     include: {
-      _count: {
-        select: { likes: true },
-      },
       likes: userId
         ? {
             where: { userId },
@@ -130,7 +127,7 @@ export async function getMenuItems(tgUserId?: string): Promise<MenuItemDTO[]> {
     description: item.description,
     locations: parseLocations(item.locations),
     exactAddresses: parseExactAddresses(item.exactAddresses),
-    likesCount: item._count.likes || 0,
+    likesCount: Math.max(0, item.likesCount),
     isLiked: userId ? item.likes.length > 0 : false,
   }));
 }
@@ -160,14 +157,24 @@ export async function toggleLike(
         where: { id: existingLike.id },
       });
 
-      const updated = await tx.menuItem.update({
-        where: { id: itemId },
+      await tx.menuItem.updateMany({
+        where: {
+          id: itemId,
+          likesCount: { gt: 0 },
+        },
         data: { likesCount: { decrement: 1 } },
-        select: { likesCount: true },
       });
 
+      const updated = await tx.menuItem.findUnique({
+        where: { id: itemId },
+        select: { likesCount: true },
+      });
+      if (!updated) {
+        throw new Error("Menu item not found.");
+      }
+
       return {
-        likesCount: updated.likesCount,
+        likesCount: Math.max(0, updated.likesCount),
         isLiked: false,
       };
     }
@@ -186,7 +193,7 @@ export async function toggleLike(
     });
 
     return {
-      likesCount: updated.likesCount,
+      likesCount: Math.max(0, updated.likesCount),
       isLiked: true,
     };
   });
